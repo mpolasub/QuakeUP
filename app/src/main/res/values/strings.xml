@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Eathquake Tracker</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="MAPS_API_KEY">AIzaSyDkK2R5k-XgesbgKtCdpCTOn8_rfcE2P4A</string>
+</resources>
