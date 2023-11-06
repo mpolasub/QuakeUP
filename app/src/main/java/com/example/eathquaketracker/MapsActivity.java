@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -43,15 +44,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LocationListener locationListener;
     private GoogleMap mMap;
-    private ActivityMapsBinding binding;
+//    private ActivityMapsBinding binding;
     private RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMapsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+//        binding = ActivityMapsBinding.inflate(getLayoutInflater());
+        setContentView(R.layout.activity_maps);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -100,6 +101,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         } else {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                    .title("Hello"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 8));
 
         }
 
@@ -115,12 +123,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             }
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
     }
 
     public void getEarthQuakes() {
 
-        EarthQuake earthQuake = new EarthQuake();
+        final EarthQuake earthQuake = new EarthQuake();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.URL,
                 new Response.Listener<JSONObject>() {
@@ -149,11 +158,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
                                 markerOptions.title(earthQuake.getPlace());
                                 markerOptions.position(new LatLng(lat, lon));
-                                markerOptions.snippet("Magnitude: " + earthQuake.getMagnitude() + "\n" +
-                                        "Date: " + formattedDate);
+//                                markerOptions.snippet("Magnitude: " + earthQuake.getMagnitude() + "\n" +
+//                                        "Date: " + formattedDate);
 
                                 Marker marker = mMap.addMarker(markerOptions);
-                                marker.setTag(earthQuake.getDetailLink());
+//                                marker.setTag(earthQuake.getDetailLink());
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 1));
 
 
