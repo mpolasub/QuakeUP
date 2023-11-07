@@ -16,4 +16,5 @@ Why?:
 - Enjoyment: It was really fun for me to see what kinds of data I could extract from USGS and put it to use
 
 Image:
-![image](https://github.com/mpolasub/QuakeUp/assets/63173206/0b1e8e49-824b-4381-b5cf-8637caa500e3)
+
+![image](https://github.com/mpolasub/QuakeUp/assets/63173206/39cfcb50-0129-44bd-991e-eb8a79334829)
