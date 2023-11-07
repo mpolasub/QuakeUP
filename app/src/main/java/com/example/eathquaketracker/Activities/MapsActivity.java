@@ -1,4 +1,4 @@
-package com.example.eathquaketracker;
+package com.example.eathquaketracker.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -7,8 +7,9 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,13 +20,13 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.eathquaketracker.Model.EarthQuake;
+import com.example.eathquaketracker.R;
 import com.example.eathquaketracker.UI.CustomInfoWindow;
 import com.example.eathquaketracker.Util.Constants;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,19 +34,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.eathquaketracker.databinding.ActivityMapsBinding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener {
@@ -56,6 +56,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private RequestQueue queue;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
+    private BitmapDescriptor[] iconColors;
+    private Button showListBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        showListBtn = (Button) findViewById(R.id.showListBtn);
+
+
+        showListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this, QuakesListActivity.class));
+            }
+        });
+
+        iconColors = new BitmapDescriptor[] {
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA),
+                // BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE),
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)
+
+
+
+        };
 
         queue = Volley.newRequestQueue(this);
 
@@ -161,6 +189,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 earthQuake.setPlace(properties.getString("place"));
                                 earthQuake.setType(properties.getString("type"));
                                 earthQuake.setTime(properties.getLong("time"));
+                                earthQuake.setLat(lat);
+                                earthQuake.setLon(lon);
                                 earthQuake.setMagnitude(properties.getDouble("mag"));
                                 earthQuake.setDetailLink(properties.getString("detail"));
 
@@ -168,11 +198,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 String formattedDate = dateFormat.format(new Date(Long.valueOf(properties.getLong("time")))
                                         .getTime());
                                 MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                                markerOptions.icon(iconColors[Constants.randomInt(iconColors.length, 0)]);
                                 markerOptions.title(earthQuake.getPlace());
-                                markerOptions.position(new LatLng(lat, lon));
+                                markerOptions.position(new LatLng(earthQuake.getLat(), earthQuake.getLon()));
                                 markerOptions.snippet("Magnitude: " + earthQuake.getMagnitude() + "\n" +
                                         "Date: " + formattedDate);
+
+                                if (earthQuake.getMagnitude() >= 2.0 ) {
+                                    CircleOptions circleOptions = new CircleOptions();
+                                    circleOptions.center(new LatLng(earthQuake.getLat(),
+                                            earthQuake.getLon()));
+                                    circleOptions.radius(30000);
+                                    circleOptions.strokeWidth(2.5f);
+                                    circleOptions.fillColor(Color.RED);
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                                    mMap.addCircle(circleOptions);
+                                }
 
                                 Marker marker = mMap.addMarker(markerOptions);
                                 marker.setTag(earthQuake.getDetailLink());
@@ -289,19 +330,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     popList.setText(stringBuilder);
 
-                    dismissButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
+                    dismissButton.setOnClickListener(v -> dialog.dismiss());
 
-                    dismissButtonTop.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
+                    dismissButtonTop.setOnClickListener(v -> dialog.dismiss());
 
                     dialogBuilder.setView(view);
                     dialog = dialogBuilder.create();
