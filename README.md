@@ -14,3 +14,6 @@ Why?:
 - Safety and Preparedness: Users can stay informed about earthquake activity in their area, enabling them to take necessary precautions and ensure their safety.
 - Research and Education: The app is a valuable tool for students, researchers, and anyone interested in studying seismic events and patterns.
 - Enjoyment: It was really fun for me to see what kinds of data I could extract from USGS and put it to use
+
+Image:
+![image](https://github.com/mpolasub/QuakeUp/assets/63173206/0b1e8e49-824b-4381-b5cf-8637caa500e3)
